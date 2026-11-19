@@ -1,0 +1,31 @@
+name: Run Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - services/python/grades-api
+          - services/python/grades-report
+          - services/web/grades-web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-service
+        with:
+          service_path: ${{ matrix.service }}
+          install_python: ${{ startsWith(matrix.service, 'services/python/') }}
+      - working-directory: ${{ matrix.service }}
+        run: make install-ci
+      - working-directory: ${{ matrix.service }}
+        run: make test
