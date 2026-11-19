@@ -1,0 +1,10 @@
+# Which files belong to which service. Read by dorny/paths-filter: a service is
+# tested (and built) only when one of its files changed.
+# The name of each filter is the path of the service, so the list of changed
+# filters is also the list of folders to test.
+
+services/python/grades-api:
+  - "services/python/grades-api/**"
+  - ".github/actions/setup-service/**"
+
+# Lab A: add services/python/grades-report and services/web/grades-web here

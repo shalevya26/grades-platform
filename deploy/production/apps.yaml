@@ -1,0 +1,61 @@
+# What runs in production: one image per service.
+# The CI changes only the image lines, the ones that end with a marker comment
+# (scripts/set-image.sh). A GitOps tool applies this folder to the cluster:
+# Kubernetes comes in meeting 5. Until the first deploy the tag is "none".
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grades-api
+  namespace: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grades-api
+  template:
+    metadata:
+      labels:
+        app: grades-api
+    spec:
+      containers:
+        - name: grades-api
+          image: ghcr.io/OWNER/grades-api:none # production_services/python/grades-api
+          ports:
+            - containerPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grades-web
+  namespace: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grades-web
+  template:
+    metadata:
+      labels:
+        app: grades-web
+    spec:
+      containers:
+        - name: grades-web
+          image: ghcr.io/OWNER/grades-web:none # production_services/web/grades-web
+          ports:
+            - containerPort: 80
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grades-report
+  namespace: production
+spec:
+  schedule: "0 6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: grades-report
+              image: ghcr.io/OWNER/grades-report:none # production_services/python/grades-report

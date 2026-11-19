@@ -1,0 +1,5 @@
+{
+  "services/python/grades-api": "0.1.0",
+  "services/python/grades-report": "0.1.0",
+  "services/web/grades-web": "0.1.0"
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": true,
+  "include-v-in-tag": false,
+  "tag-separator": "@",
+  "bump-minor-pre-major": true,
+  "separate-pull-requests": false,
+  "packages": {
+    "services/python/grades-api": { "component": "services/python/grades-api" },
+    "services/python/grades-report": { "component": "services/python/grades-report" },
+    "services/web/grades-web": { "component": "services/web/grades-web" }
+  }
+}

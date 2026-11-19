@@ -1,0 +1,7 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+test_*.py
+requirements-dev.*
+Makefile
+CHANGELOG.md

@@ -1,0 +1,44 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # tags, releases, CHANGELOG.md
+  pull-requests: write # the release pull request
+  actions: write # start build-push for each release
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    outputs:
+      paths: ${{ steps.release.outputs.paths_released }}
+      all: ${{ toJSON(steps.release.outputs) }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: .github/utils/release-please-config.json
+          manifest-file: .github/utils/.release-please-manifest.json
+
+  # A tag made with GITHUB_TOKEN starts no workflow, so the tag trigger of
+  # build-push stays silent. workflow_dispatch is the exception: start it here.
+  build-released:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.paths != '[]' && needs.release-please.outputs.paths != '' }}
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        service: ${{ fromJSON(needs.release-please.outputs.paths) }}
+    steps:
+      - name: Build the release for production
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SERVICE: ${{ matrix.service }}
+          # the outputs of a monorepo release are named "<path>--version"
+          VERSION: ${{ fromJSON(needs.release-please.outputs.all)[format('{0}--version', matrix.service)] }}
+        run: |
+          gh workflow run build-push.yaml --repo "$GITHUB_REPOSITORY" \
+            --ref "$SERVICE@$VERSION" -f service="$SERVICE" -f environment=production
