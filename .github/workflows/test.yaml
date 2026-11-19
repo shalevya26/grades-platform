@@ -16,9 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          services/python/grades-api
-          services/python/report
-          services/web/grades-web
+          - services/python/grades-api
+          - services/python/report
+          - services/web/grades-web
+    steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-service
         with:
